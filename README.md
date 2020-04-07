@@ -1,2 +1,2 @@
-# Infinity_Gauntlet_Arduino
+# Infinity Gauntlet Arduino
 Codigo Arduino Practica 2 ACE2
