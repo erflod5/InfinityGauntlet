@@ -3,9 +3,10 @@
 #include <WebSocketClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "TURBONETT_9140EC";
-const char* password =  "DDECDD8434";
-
+const char* ssid = "CLARO_92c9b0";
+const char* password =  "16DF6EFCDE";
+const char* id;
+const char* date;
 WebSocketClient webSocketClient;
 WiFiClient client;
 boolean handshakeFailed=0;
@@ -48,22 +49,12 @@ void loop() {
 
 void sendData(){
   if (WiFi.status() == WL_CONNECTED) {
-    /*StaticJsonDocument<256> doc;
-    JsonObject root = doc.to<JsonObject>();
-    root["weight"] = Serial.readStringUntil('#').toFloat();
-    root["BPM"] = Serial.readStringUntil('#').toFloat();
-    root["exercise"] = Serial.readStringUntil('#');
-    root["serie"] = Serial.readStringUntil('#');
-    root["repeticion"] = Serial.readStringUntil('#');
-    root["estado"] = Serial.readStringUntil('\n');
-    
-    String JSONmessageBuffer;
-    serializeJsonPretty(root, JSONmessageBuffer);
-    Serial.println(JSONmessageBuffer);*/
     String data = Serial.readStringUntil('\n');
+    data += id;
+    data += "}";
     HTTPClient http;
     
-    http.begin("http://18.222.157.241:3000/api/Record");      //Specify request destination
+    http.begin("http://13.59.203.226/");      //Specify request destination
     http.addHeader("Content-Type", "application/json");  //Specify content-type header
    
     int httpCode = http.POST(data);   //Send the request
@@ -104,7 +95,7 @@ void handleSocket(){
 }
 
 void wsconnect(){
-  if (client.connect("18.222.157.241", 3000)) {
+  if (client.connect("13.59.203.226", 3000)) {
     Serial.println("Connected");
   } 
   else {
@@ -119,7 +110,7 @@ void wsconnect(){
   
   // Handshake with the server
   webSocketClient.path = "/";
-  webSocketClient.host = "18.222.157.241";
+  webSocketClient.host = "http://13.59.203.226";
   if (webSocketClient.handshake(client)) {
     Serial.println("Handshake successful");
   } 
@@ -135,14 +126,30 @@ void wsconnect(){
 }
 
 void nextExercise(){
-  String ejercicio = "Num:" + contador;
-  Serial.println(ejercicio);
+  
+  Serial.print("Num: ");
+  Serial.println(contador);
   actualEx = routine[contador++];
-  if(acutalEx.isNull()){
-    
+  if(actualEx.isNull()){
+    Serial.println("Ultimo");
   }
   else{
     
+   int reps = actualEx["reps"];
+    int series = actualEx["series"];
+    int exercise = actualEx["exercise"];
+    id = actualEx["id"];
+    date = actualEx["date"];
+    Serial.print("Ejercicio: ");
+    Serial.println(exercise);
+    Serial.print("Series: ");
+    Serial.println(series);
+    Serial.print("Repeticiones: ");
+    Serial.println(reps);
+    Serial.print("Id: ");
+    Serial.println(id);
+    Serial.print("date: ");
+    Serial.println(date );
   }
 }
 
