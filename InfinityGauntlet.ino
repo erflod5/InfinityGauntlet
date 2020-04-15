@@ -249,7 +249,7 @@ loopAcelerometro();
 void sendMetrics(){
   int bpm = getBPM();
   float weight = getWeight();
-  String cadena = "3#";
+  String cadena = "3#{\"data\":";
   cadena += id ;
   cadena +=",";
   cadena += bpm ;
@@ -264,7 +264,8 @@ void sendMetrics(){
   cadena +=",";
   cadena += series ;
   cadena +=",";
-  cadena += repeticiones ;
+  cadena += repeticiones;
+  cadena += "}";
   wifiSerial.println(cadena);
 }
 
@@ -286,34 +287,47 @@ void wrongRepetition(){
   }
 }
 
+/*{
+  "id_rutina":53,
+  "id_ejercicio":2,
+  "serie":2,
+  "numero_repeticion":8,
+  "completado":true,
+  "BPM":85,
+  "peso":10.2
+}*/
+
 void sendRepeticion(boolean estado){
   String cadena = "1#";
-  cadena += "{ \"ejercicio\" : "; 
+  cadena += "{ \"id_ejercicio\" : "; 
   cadena+= ejercicio;
-  cadena += ", \"actualSerie\": "; 
+  
+  cadena += ", \"serie\": "; 
   cadena += actualSerie;
-  cadena += ", \"actualRep\" : "; 
-  cadena += actualRep;
-  cadena += ", \"actualSerie\": ";
-  cadena = actualSerie;
-  cadena += ", \"actualRep\" : "; 
+  
+  cadena += ", \"numero_repeticion\" : "; 
   cadena += actualRep;
   
+  cadena += ", \"BPM\" : "; 
+  cadena += getBPM();
+
+  cadena += ", \"peso\" : "; 
+  cadena += getWeight();
+  
   if(estado) 
-    cadena += ", \"estado\" : true }";
+    cadena += ", \"estado\" : true,";
   else
-    cadena += ", \"estado\" : false }";
+    cadena += ", \"estado\" : false, \"id\":";
   wifiSerial.println(cadena);
 }
+
 void rightBuzzer(){
-  for (i=fMin;i<=fMax; i++)
-     tone(22, i, duracion);
+  tone(22,2000,500);
   noTone(22);
 }
 
 void wrongBuzzer(){
-  for (i=fMax;i>=fMin; i--)
-    tone(22, i, duracion);
+  tone(22,1000,500);
   noTone(22);
 }
 
