@@ -13,16 +13,15 @@ const int max2[] = {255,-70,-40,-160,-40,-170};
   ARRIBA: (-80,120,190),(-50,140,210)
   ABAJO: (-260,25,-50),(-240,55,-25) 
 */
-const int min3[] = {-80,120,190,-260,25,-50};
-const int max3[] = {-50,140,210,-240,55,-25};
+const int min3[] = {-260,40,-20,-260,5,-30};
+const int max3[] = {-230,80,0,-230,20,10};
+int ejercicio =-1;
+int series=-1;
+int repeticiones=-1;
+int errores=-1;
 
-int ejercicio;
-int series;
-int repeticiones;
-int errores;
-
-int actualSerie;
-int actualRep;
+int actualSerie=0;
+int actualRep=0;
 boolean isPaused;
 
 long antTimeMetric;
@@ -32,7 +31,7 @@ long antPausedSeries;
 long actPausedSeries;
 boolean isPausedSeries = false;
 
-const int pausedSeries = 60000;
+const long pausedSeries = 10000;
 String id;
 void setup(){
   Serial.begin(115200);
@@ -61,13 +60,18 @@ void loop() {
   }
   
   actPausedSeries = millis();
-  if(isPausedSeries && (actPausedSeries - antPausedSeries > pausedSeries)){
+  if(isPausedSeries && (actPausedSeries - antPausedSeries) > pausedSeries){
+    Serial.println("##################");
+    Serial.println(actPausedSeries);
+    Serial.println(antPausedSeries);
+    Serial.println("##################");
     antPausedSeries = actPausedSeries;
     isPausedSeries = false;
   }
   
   actTimeMetric = millis();
   if(actTimeMetric - antTimeMetric > 1000){
+    
     sendMetrics(); 
     antTimeMetric = actTimeMetric;
   }
@@ -87,12 +91,12 @@ void readSerial(){
         isPaused = false;
         break;
       case '2': //Finish
-        Serial.println("9#Continuar");
+        Serial.println("9#Terminar");
         isPaused = true;
         ejercicio = series = repeticiones = -1;
         break;
       case '3': //Starting routine
-        Serial.prinlnt("9#Empezando rutina...");
+        Serial.println("9#Empezando rutina...");
         readRoutine();
         isPaused = isPausedSeries = false;
         break;
@@ -117,59 +121,77 @@ void next(){
 }
 
 void readRoutine(){
+  
   while(!Serial.available());
-  String newEx = Serial.readString();
-  Serial.println(newEx);
-  ejercicio = -1;
+  String data = Serial.readStringUntil(',');
+  ejercicio = data.toInt();
+  if(ejercicio == -1){
+    Serial.println("#######Serie finalizada######");
+    clearSerial();
+    return;
+  }
+  data = Serial.readStringUntil(',');
+  series = data.toInt();
+  data = Serial.readString();
+  repeticiones = data.toInt();
+  Serial.println(ejercicio);
+  Serial.println(series);
+  Serial.println(repeticiones);
+  delay(1000);
+  actualRep = 1;
+  actualSerie = 1;
 }
 
 void exercise1(){
-  long antTiempoRep = millis();
-  long actTiempoRep = millis();
   loopAcelerometro();
   boolean goingUp = true;
+  float x = X_out, y = Y_out, z = Z_out;
+  long antTiempoRep = millis(), actTiempoRep = millis();
+    
   while(goingUp){
+    actTiempoRep = millis();
+    if(actTiempoRep - antTiempoRep > 6000){
+      wrongRepetition();
+      return;
+    }
+    loopAcelerometro();
+    if(X_out > -90 && Y_out > 40 && Z_out > -170){
+      goingUp = false;
+      Serial.println("9#Subida Correcta");
+    }
+  }
+  antTiempoRep = actTiempoRep = millis();
+  while(!goingUp){
     actTiempoRep = millis();
     if(actTiempoRep - antTiempoRep > 4000){
       wrongRepetition();
       return;
     }
     loopAcelerometro();
-    if((X_out >= min1[0] && X_out <= max1[0]) && (Y_out >= min1[1] && Y_out <= max1[1]) && (Z_out >= min1[2] && Z_out <= max1[2])){
-      goingUp = false;
-      Serial.println("9#Subida Correcta");
-    }
-  }
-  antTiempoRep = actTiempoRep = millis();
-  delay(500);
-  while(!goingUp){
-    actTiempoRep = millis();
-    if(actTiempoRep - antTiempoRep > 2000){
-      wrongRepetition();
-      return;
-    }
-    loopAcelerometro();
-    if((X_out >= min1[3] && X_out <= max1[3]) && (Y_out >= min1[4] && Y_out <= max1[4]) && (Z_out >= min1[5] && Z_out <= max1[5])){
-      Serial.println("9#Bajada correcta");
+    if(X_out < -170 && Y_out < 20 && Z_out < -185){
+      Serial.println("9# Bajada correcta");
       rightRepetition();
       next();
+      delay(100);
+      break;
     } 
   }
 }
 
 void exercise2(){
-  long antTiempoRep = millis();
-  long actTiempoRep = millis();
   loopAcelerometro();
   boolean goingUp = true;
+  float x = X_out, y = Y_out, z = Z_out;
+  long antTiempoRep = millis(), actTiempoRep = millis();
+    
   while(goingUp){
     actTiempoRep = millis();
-    if(actTiempoRep - antTiempoRep > 4000){
+    if(actTiempoRep - antTiempoRep > 6000){
       wrongRepetition();
       return;
     }
     loopAcelerometro();
-    if((X_out >= min2[0] && X_out <= max2[0]) && (Y_out >= min2[1] && Y_out <= max2[1]) && (Z_out >= min2[2] && Z_out <= max2[2])){
+    if(X_out > 200 && Y_out > -50 && Z_out > -100){
       goingUp = false;
       Serial.println("9#Subida Correcta");
     }
@@ -177,32 +199,35 @@ void exercise2(){
   antTiempoRep = actTiempoRep = millis();
   while(!goingUp){
     actTiempoRep = millis();
-    if(actTiempoRep - antTiempoRep > 2000){
+    if(actTiempoRep - antTiempoRep > 4000){
       wrongRepetition();
       return;
     }
     loopAcelerometro();
-    if((X_out >= min2[3] && X_out <= max2[3]) && (Y_out >= min2[4] && Y_out <= max2[4]) && (Z_out >= min2[5] && Z_out <= max2[5])){
-      Serial.println("9#Bajada correcta");
+    if(X_out < -90 && Y_out < -90 && Z_out < -200){
+      Serial.println("9# Bajada correcta");
       rightRepetition();
       next();
+      delay(100);
+      break;
     } 
   }
 }
 
 void exercise3(){
-  long antTiempoRep = millis();
-  long actTiempoRep = millis();
-  loopAcelerometro();
+loopAcelerometro();
   boolean goingUp = true;
+  float x = X_out, y = Y_out, z = Z_out;
+  long antTiempoRep = millis(), actTiempoRep = millis();
+    
   while(goingUp){
     actTiempoRep = millis();
-    if(actTiempoRep - antTiempoRep > 4000){
+    if(actTiempoRep - antTiempoRep > 6000){
       wrongRepetition();
       return;
     }
     loopAcelerometro();
-    if((X_out >= min3[0] && X_out <= max3[0]) && (Y_out >= min3[1] && Y_out <= max3[1]) && (Z_out >= min3[2] && Z_out <= max3[2])){
+    if(X_out > -90 && Y_out > 130 && Z_out > 110){
       goingUp = false;
       Serial.println("9#Subida Correcta");
     }
@@ -210,45 +235,55 @@ void exercise3(){
   antTiempoRep = actTiempoRep = millis();
   while(!goingUp){
     actTiempoRep = millis();
-    if(actTiempoRep - antTiempoRep > 2000){
+    if(actTiempoRep - antTiempoRep > 4000){
       wrongRepetition();
       return;
     }
     loopAcelerometro();
-    if((X_out >= min3[3] && X_out <= max3[3]) && (Y_out >= min3[4] && Y_out <= max3[4]) && (Z_out >= min3[5] && Z_out <= max3[5])){
+    if(X_out < -200 && Y_out < -10 && Z_out < -10){
       Serial.println("9# Bajada correcta");
       rightRepetition();
       next();
+      delay(100);
+      break;
     } 
   }
 }
 
 void sendMetrics(){
   int bpm = getBPM();
-  int weight = getWeight();
+  float weight = getWeight();
   String cadena = "3#";
-  cadena += id + ",";
-  cadena += bpm + ",";
-  cadena += weight + ",";
-  cadena += ejercicio + ",";
-  cadena += actualSerie + ",";
-  cadena += actualRep + ",";
-  cadena += series + ",";
-  cadena += repeticiones + ",";
+  cadena += id ;
+  cadena +=",";
+  cadena += bpm ;
+  cadena +=",";
+  cadena += weight ;
+  cadena +=",";
+  cadena += ejercicio ;
+  cadena +=",";
+  cadena += actualSerie ;
+  cadena +=",";
+  cadena += actualRep ;
+  cadena +=",";
+  cadena += series ;
+  cadena +=",";
+  cadena += repeticiones ;
   Serial.println(cadena);
 }
 
 void rightRepetition(){
-  rightBuzzer();
-  sendRepeticion(true);
+  rightBuzzer();  
+  sendRepeticion(true); 
   actualRep++;
 }
 
 void wrongRepetition(){
   wrongBuzzer();
   sendRepeticion(false);
-  errores++;
+  //errores++;
   if(errores > 2){
+    antPausedSeries = millis();
     isPausedSeries = true;
     errores = 0;
     Serial.println("9#Pausa Obligatoria");
@@ -257,11 +292,16 @@ void wrongRepetition(){
 
 void sendRepeticion(boolean estado){
   String cadena = "1#";
-  cadena += "{ \"ejercicio\" : " + ejercicio;
-  cadena += ", \"actualSerie\": " + actualSerie;
-  cadena += ", \"actualRep\" : " + actualRep;
-  cadena += ", \"actualSerie\": " + actualSerie;
-  cadena += ", \"actualRep\" : " + actualRep;
+  cadena += "{ \"ejercicio\" : "; 
+  cadena+= ejercicio;
+  cadena += ", \"actualSerie\": "; 
+  cadena += actualSerie;
+  cadena += ", \"actualRep\" : "; 
+  cadena += actualRep;
+  cadena += ", \"actualSerie\": ";
+  cadena = actualSerie;
+  cadena += ", \"actualRep\" : "; 
+  cadena += actualRep;
   
   if(estado) 
     cadena += ", \"estado\" : true }";
@@ -269,7 +309,6 @@ void sendRepeticion(boolean estado){
     cadena += ", \"estado\" : false }";
   Serial.println(cadena);
 }
-
 void rightBuzzer(){
   Serial.println("9#Ejercicio correcto");
 }

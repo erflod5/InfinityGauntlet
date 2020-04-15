@@ -14,7 +14,7 @@ void setupWeight() {
   long zero_factor = scale.read_average(); //Get a baseline reading
 }
 
-int getWeight() {
+float getWeight() {
   scale.set_scale(calibration_factor);
   units = scale.get_units(), 10;
   if (units < 0)
