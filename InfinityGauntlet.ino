@@ -1,20 +1,6 @@
-/*
-  VALORES MINIMOS Y MAXIMOS
-*/
+#include <SoftwareSerial.h>
 float X_out, Y_out, Z_out;
 
-const int min1[] = {-245,65,-30,-255,30,-20};
-const int max1[] = {-230,80,-5,-240,50,-5};
-
-const int min2[] = {230,-90,-70,-185,-60,-200};
-const int max2[] = {255,-70,-40,-160,-40,-170};
-
-/*
-  ARRIBA: (-80,120,190),(-50,140,210)
-  ABAJO: (-260,25,-50),(-240,55,-25) 
-*/
-const int min3[] = {-260,40,-20,-260,5,-30};
-const int max3[] = {-230,80,0,-230,20,10};
 int ejercicio =-1;
 int series=-1;
 int repeticiones=-1;
@@ -33,8 +19,23 @@ boolean isPausedSeries = false;
 
 const long pausedSeries = 10000;
 String id;
+
+const int buzzerPin=22;
+int duracion=250; //Duración del sonido
+int fMin=2000; //Frecuencia más baja
+int fMax=4000; //Frecuencia más alta
+int i=0;
+
+/*
+ The circuit:
+ * RX is digital pin 2 (connect to TX of other device)
+ * TX is digital pin 3 (connect to RX of other device)
+*/
+SoftwareSerial wifiSerial(2,3); 
+
 void setup(){
-  Serial.begin(115200);
+  Serial.begin(9600);
+  wifiSerial.begin(115200);
   setupWeight();
   setupAcelerometro();
   setupBPM();
@@ -61,10 +62,6 @@ void loop() {
   
   actPausedSeries = millis();
   if(isPausedSeries && (actPausedSeries - antPausedSeries) > pausedSeries){
-    Serial.println("##################");
-    Serial.println(actPausedSeries);
-    Serial.println(antPausedSeries);
-    Serial.println("##################");
     antPausedSeries = actPausedSeries;
     isPausedSeries = false;
   }
@@ -79,24 +76,24 @@ void loop() {
 
 //SOCKETS
 void readSerial(){
-  if(Serial.available() > 0){
-    String data = Serial.readStringUntil('\n');
+  if(wifiSerial.available() > 0){
+    String data = wifiSerial.readStringUntil('\n');
     switch(data.charAt(0)){
       case '0': //Pause
-        Serial.println("9#Pausa");
+        Serial.println("#####Pausa#####\n\n");
         isPaused = true;
         break;
       case '1': //Continue
-        Serial.println("9#Continuar");
+        Serial.println("####Continuar####\n\n");
         isPaused = false;
         break;
       case '2': //Finish
-        Serial.println("9#Terminar");
+        Serial.println("####Terminar####\n\n");
         isPaused = true;
         ejercicio = series = repeticiones = -1;
         break;
       case '3': //Starting routine
-        Serial.println("9#Empezando rutina...");
+        Serial.println("####Empezando rutina...####\n\n");
         readRoutine();
         isPaused = isPausedSeries = false;
         break;
@@ -113,26 +110,25 @@ void next(){
     antPausedSeries = millis();
     if(actualSerie > series){
       actualSerie = 0;
-      Serial.println("9#Waiting");
-      Serial.print("2#");
+      Serial.println("####Waiting####");
+      wifiSerial.print("2#");
       readRoutine();
     }
   }
 }
 
-void readRoutine(){
-  
-  while(!Serial.available());
-  String data = Serial.readStringUntil(',');
+void readRoutine(){  
+  while(!wifiSerial.available());
+  String data = wifiSerial.readStringUntil(',');
   ejercicio = data.toInt();
   if(ejercicio == -1){
     Serial.println("#######Serie finalizada######");
     clearSerial();
     return;
   }
-  data = Serial.readStringUntil(',');
+  data = wifiSerial.readStringUntil(',');
   series = data.toInt();
-  data = Serial.readString();
+  data = wifiSerial.readString();
   repeticiones = data.toInt();
   Serial.println(ejercicio);
   Serial.println(series);
@@ -157,7 +153,7 @@ void exercise1(){
     loopAcelerometro();
     if(X_out > -90 && Y_out > 40 && Z_out > -170){
       goingUp = false;
-      Serial.println("9#Subida Correcta");
+      Serial.println("### Subida Correcta");
     }
   }
   antTiempoRep = actTiempoRep = millis();
@@ -169,7 +165,7 @@ void exercise1(){
     }
     loopAcelerometro();
     if(X_out < -170 && Y_out < 20 && Z_out < -185){
-      Serial.println("9# Bajada correcta");
+      Serial.println("### Bajada correcta");
       rightRepetition();
       next();
       delay(100);
@@ -193,7 +189,7 @@ void exercise2(){
     loopAcelerometro();
     if(X_out > 200 && Y_out > -50 && Z_out > -100){
       goingUp = false;
-      Serial.println("9#Subida Correcta");
+      Serial.println("### Subida Correcta");
     }
   }
   antTiempoRep = actTiempoRep = millis();
@@ -205,7 +201,7 @@ void exercise2(){
     }
     loopAcelerometro();
     if(X_out < -90 && Y_out < -90 && Z_out < -200){
-      Serial.println("9# Bajada correcta");
+      Serial.println("### Bajada correcta");
       rightRepetition();
       next();
       delay(100);
@@ -229,7 +225,7 @@ loopAcelerometro();
     loopAcelerometro();
     if(X_out > -90 && Y_out > 130 && Z_out > 110){
       goingUp = false;
-      Serial.println("9#Subida Correcta");
+      Serial.println("### Subida Correcta");
     }
   }
   antTiempoRep = actTiempoRep = millis();
@@ -241,7 +237,7 @@ loopAcelerometro();
     }
     loopAcelerometro();
     if(X_out < -200 && Y_out < -10 && Z_out < -10){
-      Serial.println("9# Bajada correcta");
+      Serial.println("### Bajada correcta");
       rightRepetition();
       next();
       delay(100);
@@ -269,7 +265,7 @@ void sendMetrics(){
   cadena += series ;
   cadena +=",";
   cadena += repeticiones ;
-  Serial.println(cadena);
+  wifiSerial.println(cadena);
 }
 
 void rightRepetition(){
@@ -286,7 +282,7 @@ void wrongRepetition(){
     antPausedSeries = millis();
     isPausedSeries = true;
     errores = 0;
-    Serial.println("9#Pausa Obligatoria");
+    Serial.println("####Pausa Obligatoria");
   }
 }
 
@@ -307,17 +303,21 @@ void sendRepeticion(boolean estado){
     cadena += ", \"estado\" : true }";
   else
     cadena += ", \"estado\" : false }";
-  Serial.println(cadena);
+  wifiSerial.println(cadena);
 }
 void rightBuzzer(){
-  Serial.println("9#Ejercicio correcto");
+  for (i=fMin;i<=fMax; i++)
+     tone(22, i, duracion);
+  noTone(22);
 }
 
 void wrongBuzzer(){
-  Serial.println("9#Ejercicio incorrecto");
+  for (i=fMax;i>=fMin; i--)
+    tone(22, i, duracion);
+  noTone(22);
 }
 
 void clearSerial(){
-  while(Serial.available())
-    Serial.read();
+  while(wifiSerial.available())
+    wifiSerial.read();
 }
