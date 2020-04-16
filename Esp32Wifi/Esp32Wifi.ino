@@ -81,7 +81,7 @@ void handleSocket(){
           else{
 //            Serial.println("Json correcto");
             contador = 0;
-            Serial.print(3);
+            Serial.print('3');
             nextExercise();
           }
       }
@@ -146,10 +146,10 @@ void nextExercise(){
     int exercise = actualEx["exercise"];
     id = actualEx["routine"];
 //    date = actualEx["date"];
-    Serial.print(exercise);
-    Serial.print(series);
-    Serial.print(reps);
-    Serial.print(id);
+    Serial.println(exercise);
+    Serial.println(series);
+    Serial.println(reps);
+    Serial.println(id);
   }
 }
 

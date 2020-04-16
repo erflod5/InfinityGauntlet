@@ -125,16 +125,16 @@ void readRoutine(){
   while(!wifiSerial.available());
   delay(1);
   
-  ejercicio = wifiSerial.read()-'0';  
+  ejercicio = wifiSerial.parseInt();  
   if(ejercicio == 5){
     Serial.println("#######Serie finalizada######");
     clearSerial();
     return;
   }
   
-  series = wifiSerial.read()-'0';
-  repeticiones = wifiSerial.read()-'0';
-  id = wifiSerial.read()-'0';
+  series = wifiSerial.parseInt();
+  repeticiones = wifiSerial.parseInt();
+  id = wifiSerial.parseInt();
   
   Serial.println(ejercicio);
   Serial.println(series);
@@ -328,14 +328,14 @@ void sendRepeticion(boolean estado){
 }
 
 void rightBuzzer(){
-  tone(22,2000,500);
-  noTone(22);
+  //tone(22,2000,500);
+  //noTone(22);
   Serial.println("right buzzer...");
 }
 
 void wrongBuzzer(){
-  tone(22,1000,500);
-  noTone(22);
+  //tone(22,1000,500);
+  //noTone(22);
   Serial.println("wrong buzzer...");
 }
 
