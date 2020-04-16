@@ -10,7 +10,7 @@ const char* date;
 WebSocketClient webSocketClient;
 WiFiClient client;
 boolean handshakeFailed=0;
-StaticJsonDocument<512> routine;
+StaticJsonDocument<1024> routine;
 JsonObject actualEx;
 int contador = 0;
 
@@ -20,9 +20,9 @@ void setup() {
   WiFi.begin(ssid, password); 
   while (WiFi.status() != WL_CONNECTED) { //Check for the connection
     delay(1000);
-    Serial.println("Connecting top WiFi..");
+//    Serial.println("Connecting top WiFi..");
   }
-  Serial.println("Connected to the WiFi network");
+//  Serial.println("Connected to the WiFi network");
   wsconnect();
 }
 
@@ -78,12 +78,13 @@ void handleSocket(){
       if(data.charAt(0) == '['){
           DeserializationError err = deserializeJson(routine, data);
           if (err) {
-            Serial.print(F("deserializeJson() failed with code "));
-            Serial.println(err.c_str());
+//            Serial.print(F("deserializeJson() failed with code "));
+//            Serial.println(err.c_str());
           }
           else{
-            Serial.println("Json correcto");
+//            Serial.println("Json correcto");
             contador = 0;
+            Serial.println("3");
             nextExercise();
           }
       }
@@ -96,10 +97,10 @@ void handleSocket(){
 
 void wsconnect(){
   if (client.connect("13.59.203.226", 3000)) {
-    Serial.println("Connected");
+//    Serial.println("Connected");
   } 
   else {
-    Serial.println("Connection failed.");
+//    Serial.println("Connection failed.");
     delay(1000);
     if(handshakeFailed){
       handshakeFailed=0;
@@ -112,10 +113,10 @@ void wsconnect(){
   webSocketClient.path = "/";
   webSocketClient.host = "http://13.59.203.226";
   if (webSocketClient.handshake(client)) {
-    Serial.println("Handshake successful");
+//    Serial.println("Handshake successful");
   } 
   else { 
-    Serial.println("Handshake failed.");
+//    Serial.println("Handshake failed.");
     delay(4000);  
     if(handshakeFailed){
       handshakeFailed=0;
@@ -127,29 +128,36 @@ void wsconnect(){
 
 void nextExercise(){
   
-  Serial.print("Num: ");
-  Serial.println(contador);
+//  Serial.print("Num: ");
+//  Serial.println(contador);
   actualEx = routine[contador++];
   if(actualEx.isNull()){
-    Serial.println("Ultimo");
+   // Serial.println("Ultimo");
+   Serial.println("-1,0");
   }
   else{
-    
    int reps = actualEx["reps"];
     int series = actualEx["series"];
     int exercise = actualEx["exercise"];
     id = actualEx["id"];
     date = actualEx["date"];
-    Serial.print("Ejercicio: ");
-    Serial.println(exercise);
-    Serial.print("Series: ");
-    Serial.println(series);
-    Serial.print("Repeticiones: ");
-    Serial.println(reps);
-    Serial.print("Id: ");
-    Serial.println(id);
-    Serial.print("date: ");
-    Serial.println(date );
+    String data ="";
+    data+= exercise;
+    data+=",";
+    data += series;
+    data+=",";
+    data += reps;
+    Serial.println(data);
+//    Serial.print("Ejercicio: ");
+//    Serial.println(exercise);
+//    Serial.print("Series: ");
+//    Serial.println(series);
+//    Serial.print("Repeticiones: ");
+//    Serial.println(reps);
+//    Serial.print("Id: ");
+//    Serial.println(id);
+//    Serial.print("date: ");
+//    Serial.println(date );
   }
 }
 

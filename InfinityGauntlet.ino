@@ -97,6 +97,8 @@ void readSerial(){
         readRoutine();
         isPaused = isPausedSeries = false;
         break;
+      default:
+        Serial.println(data);
     }
     clearSerial();
   }
@@ -266,6 +268,7 @@ void sendMetrics(){
   cadena +=",";
   cadena += repeticiones;
   cadena += "}";
+  Serial.println(cadena);
   wifiSerial.println(cadena);
 }
 
@@ -324,11 +327,13 @@ void sendRepeticion(boolean estado){
 void rightBuzzer(){
   tone(22,2000,500);
   noTone(22);
+  Serial.println("right buzzer Ok...");
 }
 
 void wrongBuzzer(){
   tone(22,1000,500);
   noTone(22);
+  Serial.println("wrong buzzer ...");
 }
 
 void clearSerial(){
