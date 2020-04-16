@@ -18,7 +18,7 @@ long actPausedSeries;
 boolean isPausedSeries = false;
 
 const long pausedSeries = 10000;
-String id;
+int id;
 
 const int buzzerPin=22;
 int duracion=250; //Duración del sonido
@@ -35,13 +35,12 @@ SoftwareSerial wifiSerial(2,3);
 
 void setup(){
   Serial.begin(115200);
-  wifiSerial.begin(115200);
+  wifiSerial.begin(9600);
   setupWeight();
   setupAcelerometro();
   setupBPM();
   antTimeMetric = actTimeMetric = millis();
   antPausedSeries = actPausedSeries = millis();
-  id = "";
 }
 
 void loop() {
@@ -68,7 +67,6 @@ void loop() {
   
   actTimeMetric = millis();
   if(actTimeMetric - antTimeMetric > 1000){
-    
     sendMetrics(); 
     antTimeMetric = actTimeMetric;
   }
@@ -78,6 +76,7 @@ void loop() {
 void readSerial(){
   if(wifiSerial.available() > 0){
     String data = wifiSerial.readStringUntil('\n');
+    Serial.println(data);
     switch(data.charAt(0)){
       case '0': //Pause
         Serial.println("#####Pausa#####\n\n");
@@ -123,20 +122,26 @@ void next(){
 void readRoutine(){  
   while(!wifiSerial.available());
   String data = wifiSerial.readStringUntil(',');
-  Serial.println(data);
+
   ejercicio = data.toInt();
+  
   if(ejercicio == 5){
     Serial.println("#######Serie finalizada######");
     clearSerial();
     return;
   }
+  
   data = wifiSerial.readStringUntil(',');
   series = data.toInt();
-  data = wifiSerial.readStringUntil('\n');
+  data = wifiSerial.readStringUntil(',');
   repeticiones = data.toInt();
+  data = wifiSerial.readString();
+  id = data.toInt();
+  
   Serial.println(ejercicio);
   Serial.println(series);
   Serial.println(repeticiones);
+  Serial.println(id);
   delay(1000);
   actualRep = 1;
   actualSerie = 1;

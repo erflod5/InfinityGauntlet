@@ -5,7 +5,7 @@
 
 const char* ssid = "CLARO_92c9b0";
 const char* password =  "16DF6EFCDE";
-const char* id;
+int id;
 const char* date;
 WebSocketClient webSocketClient;
 WiFiClient client;
@@ -30,12 +30,11 @@ void loop() {
   if(Serial.available() > 0){
     String estado = Serial.readStringUntil('#');
     if(estado.charAt(0) == '1'){
-      sendData();
+      //sendData();
       clearSerial();
     }
     else if(estado.charAt(0) == '2'){
       nextExercise();
-      clearSerial();
     }
     else if(estado.charAt(0) == '3'){
       String message = Serial.readStringUntil('\n');
@@ -127,39 +126,25 @@ void wsconnect(){
 }
 
 void nextExercise(){
-  
-//  Serial.print("Num: ");
-//  Serial.println(contador);
-  
   actualEx = routine[contador++];
   if(actualEx.isNull()){
-    
-   // Serial.println("Ultimo");
    Serial.println("5,0,0");
   }
   else{
-   int reps = actualEx["reps"];
+    int reps = actualEx["reps"];
     int series = actualEx["series"];
     int exercise = actualEx["exercise"];
-//    id = actualEx["id"];
+    id = actualEx["routine"];
 //    date = actualEx["date"];
-    String data ="";
-    data+= exercise;
-    data+=",";
+    String data = "";
+    data += exercise;
+    data += ",";
     data += series;
-    data+=",";
+    data += ",";
     data += reps;
+    data += ",";
+    data += id;
     Serial.println(data);
-//    Serial.print("Ejercicio: ");
-//    Serial.println(exercise);
-//    Serial.print("Series: ");
-//    Serial.println(series);
-//    Serial.print("Repeticiones: ");
-//    Serial.println(reps);
-//    Serial.print("Id: ");
-//    Serial.println(id);
-//    Serial.print("date: ");
-//    Serial.println(date );
   }
 }
 
