@@ -20,7 +20,7 @@ long antPausedSeries;
 long actPausedSeries;
 boolean isPausedSeries = false;
 
-const long pausedSeries = 10000;
+const long pausedSeries = 20000;
 int id;
 
 const int buzzerPin=22;
@@ -29,8 +29,8 @@ int fMin=2000; //Frecuencia más baja
 int fMax=4000; //Frecuencia más alta
 int i=0;
 
-const int led1 = 8;
-const int led2 = 9;
+const int led1 = 8; //Correcto
+const int led2 = 9; //
 const int buzzer = 10;
 
 /*
@@ -47,6 +47,8 @@ void setup(){
   setupBPM();
   antTimeMetric = actTimeMetric = millis();
   antPausedSeries = actPausedSeries = millis();
+  pinMode(led1,OUTPUT);
+  pinMode(les2,OUTPUT);
 }
 
 void loop() {
@@ -63,12 +65,17 @@ void loop() {
         exercise3();
         break;
     }
+    digitalWrite(led1,LOW);
+  }
+  else{
+    digitalWrite(led1,HIGH);
   }
   
   actPausedSeries = millis();
   if(isPausedSeries && (actPausedSeries - antPausedSeries) > pausedSeries){
     antPausedSeries = actPausedSeries;
     isPausedSeries = false;
+    digitalWrite(led2,LOW);
   }
   
   actTimeMetric = millis();
@@ -117,6 +124,7 @@ void next(){
     actualSerie++;
     isPausedSeries = true;
     antPausedSeries = millis();
+    digitalWrite(led2,HIGH);
     if(actualSerie > series){
       actualSerie = 0;
       Serial.println("####Waiting####");
@@ -307,8 +315,8 @@ void rightRepetition(){
 
 void wrongRepetition(){
   wrongBuzzer();
- // sendRepeticion(false);
-  //errores++;
+  //sendRepeticion(false);
+  errores++;
   if(errores > 2){
     antPausedSeries = millis();
     isPausedSeries = true;
