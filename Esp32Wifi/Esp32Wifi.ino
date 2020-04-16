@@ -130,17 +130,19 @@ void nextExercise(){
   
 //  Serial.print("Num: ");
 //  Serial.println(contador);
+  
   actualEx = routine[contador++];
   if(actualEx.isNull()){
+    
    // Serial.println("Ultimo");
-   Serial.println("-1,0");
+   Serial.println("5,0,0");
   }
   else{
    int reps = actualEx["reps"];
     int series = actualEx["series"];
     int exercise = actualEx["exercise"];
-    id = actualEx["id"];
-    date = actualEx["date"];
+//    id = actualEx["id"];
+//    date = actualEx["date"];
     String data ="";
     data+= exercise;
     data+=",";

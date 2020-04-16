@@ -34,7 +34,7 @@ int i=0;
 SoftwareSerial wifiSerial(2,3); 
 
 void setup(){
-  Serial.begin(9600);
+  Serial.begin(115200);
   wifiSerial.begin(115200);
   setupWeight();
   setupAcelerometro();
@@ -113,6 +113,7 @@ void next(){
     if(actualSerie > series){
       actualSerie = 0;
       Serial.println("####Waiting####");
+      clearSerial();
       wifiSerial.print("2#");
       readRoutine();
     }
@@ -122,15 +123,16 @@ void next(){
 void readRoutine(){  
   while(!wifiSerial.available());
   String data = wifiSerial.readStringUntil(',');
+  Serial.println(data);
   ejercicio = data.toInt();
-  if(ejercicio == -1){
+  if(ejercicio == 5){
     Serial.println("#######Serie finalizada######");
     clearSerial();
     return;
   }
   data = wifiSerial.readStringUntil(',');
   series = data.toInt();
-  data = wifiSerial.readString();
+  data = wifiSerial.readStringUntil('\n');
   repeticiones = data.toInt();
   Serial.println(ejercicio);
   Serial.println(series);
@@ -153,7 +155,7 @@ void exercise1(){
       return;
     }
     loopAcelerometro();
-    if(X_out > -90 && Y_out > 40 && Z_out > -170){
+    if(X_out > 200 && Y_out > 0 && Z_out > -75){
       goingUp = false;
       Serial.println("### Subida Correcta");
     }
@@ -166,7 +168,7 @@ void exercise1(){
       return;
     }
     loopAcelerometro();
-    if(X_out < -170 && Y_out < 20 && Z_out < -185){
+    if(X_out < -90 && Y_out < -20 && Z_out < -200){
       Serial.println("### Bajada correcta");
       rightRepetition();
       next();
@@ -189,7 +191,7 @@ void exercise2(){
       return;
     }
     loopAcelerometro();
-    if(X_out > 200 && Y_out > -50 && Z_out > -100){
+    if(X_out > -50 && Y_out > 170 && Z_out > -130){
       goingUp = false;
       Serial.println("### Subida Correcta");
     }
@@ -202,7 +204,7 @@ void exercise2(){
       return;
     }
     loopAcelerometro();
-    if(X_out < -90 && Y_out < -90 && Z_out < -200){
+    if(X_out < -180 && Y_out < 100 && Z_out < -95){
       Serial.println("### Bajada correcta");
       rightRepetition();
       next();
@@ -251,9 +253,7 @@ loopAcelerometro();
 void sendMetrics(){
   int bpm = getBPM();
   float weight = getWeight();
-  String cadena = "3#{\"data\":";
-  cadena += id ;
-  cadena +=",";
+  String cadena = "3#{\"data\":\"";
   cadena += bpm ;
   cadena +=",";
   cadena += weight ;
@@ -267,20 +267,20 @@ void sendMetrics(){
   cadena += series ;
   cadena +=",";
   cadena += repeticiones;
-  cadena += "}";
+  cadena += "\"}";
   Serial.println(cadena);
   wifiSerial.println(cadena);
 }
 
 void rightRepetition(){
   rightBuzzer();  
-  sendRepeticion(true); 
+ // sendRepeticion(true); 
   actualRep++;
 }
 
 void wrongRepetition(){
   wrongBuzzer();
-  sendRepeticion(false);
+ // sendRepeticion(false);
   //errores++;
   if(errores > 2){
     antPausedSeries = millis();
@@ -333,7 +333,7 @@ void rightBuzzer(){
 void wrongBuzzer(){
   tone(22,1000,500);
   noTone(22);
-  Serial.println("wrong buzzer ...");
+  Serial.println("wrong buzzer Ok...");
 }
 
 void clearSerial(){
