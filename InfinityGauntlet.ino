@@ -1,4 +1,8 @@
 #include <SoftwareSerial.h>
+#include <ArduinoJson.h>
+StaticJsonDocument<512> routine;
+JsonObject actualEx;
+int contador = 0;
 float X_out, Y_out, Z_out;
 
 int ejercicio =-1;
@@ -34,8 +38,8 @@ int i=0;
 SoftwareSerial wifiSerial(2,3); 
 
 void setup(){
-  Serial.begin(115200);
-  wifiSerial.begin(115200);
+  Serial.begin(9600);
+  wifiSerial.begin(9600);
   setupWeight();
   setupAcelerometro();
   setupBPM();
@@ -114,9 +118,7 @@ void next(){
     if(actualSerie > series){
       actualSerie = 0;
       Serial.println("####Waiting####");
-      clearSerial();
-      wifiSerial.print("2#");
-      readRoutine();
+      nextExercise();
     }
   }
 }
@@ -124,25 +126,37 @@ void next(){
 void readRoutine(){  
   while(!wifiSerial.available());
   delay(1);
-  
-  ejercicio = wifiSerial.parseInt();  
-  if(ejercicio == 5){
-    Serial.println("#######Serie finalizada######");
-    clearSerial();
-    return;
+  String rutinaData = Serial.readStringUntil('\n');
+  Serial.println(rutinaData);
+  DeserializationError err = deserializeJson(routine, rutinaData);
+  if (err) {
+    Serial.println("JSON error");
   }
-  
-  series = wifiSerial.parseInt();
-  repeticiones = wifiSerial.parseInt();
-  id = wifiSerial.parseInt();
-  
-  Serial.println(ejercicio);
-  Serial.println(series);
-  Serial.println(repeticiones);
-  Serial.println(id);
-  delay(1000);
-  actualRep = 1;
-  actualSerie = 1;
+  else{
+    Serial.println("JSON correcto");
+    contador = 0;
+    nextExercise();
+  }
+}
+
+void nextExercise(){
+  actualEx = routine[contador++]; 
+  if(actualEx.isNull()){
+    Serial.println("Rutina terminada");
+    ejercicio = -1;
+  }
+  else{
+    repeticiones = actualEx["reps"];
+    series = actualEx["series"];
+    ejercicio = actualEx["exercise"];
+    id = actualEx["routine"];
+    actualRep = 1;
+    actualSerie = 1;
+    Serial.println(ejercicio);
+    Serial.println(series);
+    Serial.println(repeticiones);
+    Serial.println(id);
+  }
 }
 
 void exercise1(){
@@ -341,7 +355,8 @@ void wrongBuzzer(){
 
 void clearSerial(){
   while(wifiSerial.available()){
-    Serial.print(wifiSerial.read());
+    char x = wifiSerial.read();
+    Serial.print(x);
   }
   Serial.println();
 }

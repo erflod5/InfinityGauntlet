@@ -4,9 +4,7 @@
 #define CLK 5
 HX711 scale(DOUT, CLK);
 
-float calibration_factor = 30000;
 float units;
-float ounces;
 
 void setupWeight() {
   scale.set_scale();
@@ -15,7 +13,7 @@ void setupWeight() {
 }
 
 float getWeight() {
-  scale.set_scale(calibration_factor);
+  scale.set_scale(30000);
   units = scale.get_units(), 10;
   if (units < 0)
   {

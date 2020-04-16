@@ -10,19 +10,14 @@ const char* date;
 WebSocketClient webSocketClient;
 WiFiClient client;
 boolean handshakeFailed=0;
-StaticJsonDocument<1024> routine;
-JsonObject actualEx;
-int contador = 0;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   delay(4000);   //Delay needed before calling the WiFi.begin
   WiFi.begin(ssid, password); 
   while (WiFi.status() != WL_CONNECTED) { //Check for the connection
     delay(1000);
-//    Serial.println("Connecting top WiFi..");
   }
-//  Serial.println("Connected to the WiFi network");
   wsconnect();
 }
 
@@ -75,15 +70,8 @@ void handleSocket(){
     webSocketClient.getData(data);    
     if (data.length() > 0) {
       if(data.charAt(0) == '['){
-          DeserializationError err = deserializeJson(routine, data);
-          if (err) {
-          }
-          else{
-//            Serial.println("Json correcto");
-            contador = 0;
-            Serial.print('3');
-            nextExercise();
-          }
+          Serial.print('3');
+          Serial.println(data);
       }
       else{
         switch(data.charAt(0)){
@@ -96,8 +84,6 @@ void handleSocket(){
           case '2': //Finish
             Serial.print('2');
             break;
-          default:
-            Serial.println(data);
         }
       }
     }
@@ -145,11 +131,11 @@ void nextExercise(){
     int series = actualEx["series"];
     int exercise = actualEx["exercise"];
     id = actualEx["routine"];
-//    date = actualEx["date"];
-    Serial.println(exercise);
-    Serial.println(series);
-    Serial.println(reps);
-    Serial.println(id);
+    //date = actualEx["date"];
+    Serial.print(exercise);
+    Serial.print(series);
+    Serial.print(reps);
+    Serial.print(id);
   }
 }
 
