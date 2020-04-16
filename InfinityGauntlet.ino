@@ -35,7 +35,7 @@ SoftwareSerial wifiSerial(2,3);
 
 void setup(){
   Serial.begin(115200);
-  wifiSerial.begin(9600);
+  wifiSerial.begin(115200);
   setupWeight();
   setupAcelerometro();
   setupBPM();
@@ -76,7 +76,7 @@ void loop() {
 void readSerial(){
   if(wifiSerial.available() > 0){
     char data = wifiSerial.read();
-    //Serial.println(data);
+    Serial.println(data);
     switch(data){
       case '0': //Pause
         Serial.println("#####Pausa#####\n\n");
@@ -125,16 +125,16 @@ void readRoutine(){
   while(!wifiSerial.available());
   delay(1);
   
-  ejercicio = wifiSerial.read();  
+  ejercicio = wifiSerial.read()-'0';  
   if(ejercicio == 5){
     Serial.println("#######Serie finalizada######");
     clearSerial();
     return;
   }
   
-  series = wifiSerial.read();
-  repeticiones = wifiSerial.read();
-  id = wifiSerial.read();
+  series = wifiSerial.read()-'0';
+  repeticiones = wifiSerial.read()-'0';
+  id = wifiSerial.read()-'0';
   
   Serial.println(ejercicio);
   Serial.println(series);
