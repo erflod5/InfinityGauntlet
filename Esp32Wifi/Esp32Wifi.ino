@@ -5,14 +5,12 @@
 
 const char* ssid = "CLARO_92c9b0";
 const char* password =  "16DF6EFCDE";
-int id;
-const char* date;
 WebSocketClient webSocketClient;
 WiFiClient client;
 boolean handshakeFailed=0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   delay(4000);   //Delay needed before calling the WiFi.begin
   WiFi.begin(ssid, password); 
   while (WiFi.status() != WL_CONNECTED) { //Check for the connection
@@ -29,7 +27,7 @@ void loop() {
       clearSerial();
     }
     else if(estado.charAt(0) == '2'){
-      nextExercise();
+      //Fin ejerccios
     }
     else if(estado.charAt(0) == '3'){
       String message = Serial.readStringUntil('\n');
@@ -44,8 +42,6 @@ void loop() {
 void sendData(){
   if (WiFi.status() == WL_CONNECTED) {
     String data = Serial.readStringUntil('\n');
-    data += id;
-    data += "}";
     HTTPClient http;
     
     http.begin("http://13.59.203.226/");      //Specify request destination
@@ -71,7 +67,7 @@ void handleSocket(){
     if (data.length() > 0) {
       if(data.charAt(0) == '['){
           Serial.print('3');
-          Serial.println(data);
+          Serial.println(data); 
       }
       else{
         switch(data.charAt(0)){
@@ -118,24 +114,6 @@ void wsconnect(){
       ESP.restart();
     }
     handshakeFailed=1;
-  }
-}
-
-void nextExercise(){
-  actualEx = routine[contador++];
-  if(actualEx.isNull()){
-    Serial.println(5);
-  }
-  else{
-    int reps = actualEx["reps"];
-    int series = actualEx["series"];
-    int exercise = actualEx["exercise"];
-    id = actualEx["routine"];
-    //date = actualEx["date"];
-    Serial.print(exercise);
-    Serial.print(series);
-    Serial.print(reps);
-    Serial.print(id);
   }
 }
 

@@ -1,6 +1,5 @@
-#include <SoftwareSerial.h>
 #include <ArduinoJson.h>
-StaticJsonDocument<512> routine;
+StaticJsonDocument<1024> routine;
 JsonObject actualEx;
 int contador = 0;
 float X_out, Y_out, Z_out;
@@ -30,16 +29,19 @@ int fMin=2000; //Frecuencia más baja
 int fMax=4000; //Frecuencia más alta
 int i=0;
 
+const int led1 = 8;
+const int led2 = 9;
+const int buzzer = 10;
+
 /*
  The circuit:
  * RX is digital pin 2 (connect to TX of other device)
  * TX is digital pin 3 (connect to RX of other device)
 */
-SoftwareSerial wifiSerial(2,3); 
 
 void setup(){
   Serial.begin(9600);
-  wifiSerial.begin(9600);
+  Serial1.begin(115200);
   setupWeight();
   setupAcelerometro();
   setupBPM();
@@ -78,8 +80,8 @@ void loop() {
 
 //SOCKETS
 void readSerial(){
-  if(wifiSerial.available() > 0){
-    char data = wifiSerial.read();
+  if(Serial1.available() > 0){
+    char data = Serial1.read();
     Serial.println(data);
     switch(data){
       case '0': //Pause
@@ -124,7 +126,7 @@ void next(){
 }
 
 void readRoutine(){  
-  while(!wifiSerial.available());
+  while(!Serial1.available());
   delay(1);
   String rutinaData = Serial.readStringUntil('\n');
   Serial.println(rutinaData);
@@ -286,7 +288,7 @@ void sendMetrics(){
   cadena += repeticiones;
   cadena += "\"}";
   Serial.println(cadena);
-  wifiSerial.println(cadena);
+  Serial1.println(cadena);
 }
 
 void rightRepetition(){
@@ -338,7 +340,7 @@ void sendRepeticion(boolean estado){
     cadena += ", \"estado\" : true,";
   else
     cadena += ", \"estado\" : false, \"id\":";
-  wifiSerial.println(cadena);
+  Serial1.println(cadena);
 }
 
 void rightBuzzer(){
@@ -354,8 +356,8 @@ void wrongBuzzer(){
 }
 
 void clearSerial(){
-  while(wifiSerial.available()){
-    char x = wifiSerial.read();
+  while(Serial1.available()){
+    char x = Serial1.read();
     Serial.print(x);
   }
   Serial.println();
