@@ -128,7 +128,15 @@ void next(){
 void readRoutine(){  
   while(!Serial1.available());
   delay(1);
-  String rutinaData = Serial.readStringUntil('\n');
+  String rutinaData = "";
+  while(true){
+    if(Serial1.available() > 0){
+      char data = Serial1.read();
+      if(data == '#')
+        break;
+      rutinaData += data;
+    }
+  }
   Serial.println(rutinaData);
   DeserializationError err = deserializeJson(routine, rutinaData);
   if (err) {

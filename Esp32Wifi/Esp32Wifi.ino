@@ -67,7 +67,8 @@ void handleSocket(){
     if (data.length() > 0) {
       if(data.charAt(0) == '['){
           Serial.print('3');
-          Serial.println(data); 
+          Serial.print(data);
+          Serial.print('#'); 
       }
       else{
         switch(data.charAt(0)){
