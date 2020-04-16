@@ -77,18 +77,28 @@ void handleSocket(){
       if(data.charAt(0) == '['){
           DeserializationError err = deserializeJson(routine, data);
           if (err) {
-//            Serial.print(F("deserializeJson() failed with code "));
-//            Serial.println(err.c_str());
           }
           else{
 //            Serial.println("Json correcto");
             contador = 0;
-            Serial.println("3");
+            Serial.print(3);
             nextExercise();
           }
       }
       else{
-        Serial.println(data);
+        switch(data.charAt(0)){
+          case '0': //Pause
+            Serial.print('0');
+            break;
+          case '1': //Continue
+            Serial.print('1');
+            break;
+          case '2': //Finish
+            Serial.print('2');
+            break;
+          default:
+            Serial.println(data);
+        }
       }
     }
   }
@@ -128,7 +138,7 @@ void wsconnect(){
 void nextExercise(){
   actualEx = routine[contador++];
   if(actualEx.isNull()){
-   Serial.println("5,0,0");
+    Serial.println(5);
   }
   else{
     int reps = actualEx["reps"];
@@ -136,15 +146,10 @@ void nextExercise(){
     int exercise = actualEx["exercise"];
     id = actualEx["routine"];
 //    date = actualEx["date"];
-    String data = "";
-    data += exercise;
-    data += ",";
-    data += series;
-    data += ",";
-    data += reps;
-    data += ",";
-    data += id;
-    Serial.println(data);
+    Serial.print(exercise);
+    Serial.print(series);
+    Serial.print(reps);
+    Serial.print(id);
   }
 }
 

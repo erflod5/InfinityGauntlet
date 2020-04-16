@@ -75,9 +75,9 @@ void loop() {
 //SOCKETS
 void readSerial(){
   if(wifiSerial.available() > 0){
-    String data = wifiSerial.readStringUntil('\n');
-    Serial.println(data);
-    switch(data.charAt(0)){
+    char data = wifiSerial.read();
+    //Serial.println(data);
+    switch(data){
       case '0': //Pause
         Serial.println("#####Pausa#####\n\n");
         isPaused = true;
@@ -97,7 +97,9 @@ void readSerial(){
         isPaused = isPausedSeries = false;
         break;
       default:
-        Serial.println(data);
+        String cadena = Serial.readString();
+        Serial.println(cadena);
+        break;
     }
     clearSerial();
   }
@@ -121,22 +123,18 @@ void next(){
 
 void readRoutine(){  
   while(!wifiSerial.available());
-  String data = wifiSerial.readStringUntil(',');
-
-  ejercicio = data.toInt();
+  delay(1);
   
+  ejercicio = wifiSerial.read();  
   if(ejercicio == 5){
     Serial.println("#######Serie finalizada######");
     clearSerial();
     return;
   }
   
-  data = wifiSerial.readStringUntil(',');
-  series = data.toInt();
-  data = wifiSerial.readStringUntil(',');
-  repeticiones = data.toInt();
-  data = wifiSerial.readString();
-  id = data.toInt();
+  series = wifiSerial.read();
+  repeticiones = wifiSerial.read();
+  id = wifiSerial.read();
   
   Serial.println(ejercicio);
   Serial.println(series);
@@ -332,16 +330,18 @@ void sendRepeticion(boolean estado){
 void rightBuzzer(){
   tone(22,2000,500);
   noTone(22);
-  Serial.println("right buzzer Ok...");
+  Serial.println("right buzzer...");
 }
 
 void wrongBuzzer(){
   tone(22,1000,500);
   noTone(22);
-  Serial.println("wrong buzzer Ok...");
+  Serial.println("wrong buzzer...");
 }
 
 void clearSerial(){
-  while(wifiSerial.available())
-    wifiSerial.read();
+  while(wifiSerial.available()){
+    Serial.print(wifiSerial.read());
+  }
+  Serial.println();
 }
