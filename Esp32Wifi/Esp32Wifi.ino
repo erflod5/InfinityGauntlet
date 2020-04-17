@@ -23,7 +23,7 @@ void loop() {
   if(Serial.available() > 0){
     String estado = Serial.readStringUntil('#');
     if(estado.charAt(0) == '1'){
-      //sendData();
+      sendData();
       clearSerial();
     }
     else if(estado.charAt(0) == '2'){
@@ -44,14 +44,11 @@ void sendData(){
     String data = Serial.readStringUntil('\n');
     HTTPClient http;
     
-    http.begin("http://13.59.203.226/");      //Specify request destination
+    http.begin("http://13.59.203.226:3000/rep");      //Specify request destination
     http.addHeader("Content-Type", "application/json");  //Specify content-type header
    
     int httpCode = http.POST(data);   //Send the request
     String payload = http.getString();
-   
-    Serial.println(httpCode);
-    Serial.println(payload);
     http.end();  //Close connection*/
   } 
   else {

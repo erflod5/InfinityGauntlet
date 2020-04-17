@@ -32,7 +32,7 @@ int i=0;
 const int led1 = 8; //Correcto
 const int led2 = 9; //
 const int buzzer = 10;
-
+const char* fecha;
 /*
  The circuit:
  * RX is digital pin 2 (connect to TX of other device)
@@ -40,7 +40,7 @@ const int buzzer = 10;
 */
 
 void setup(){
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial1.begin(115200);
   setupWeight();
   setupAcelerometro();
@@ -54,6 +54,7 @@ void setup(){
 void loop() {
   readSerial();
   if(!isPaused && !isPausedSeries){
+    digitalWrite(led1,LOW);
     switch(ejercicio){
       case 1:
         exercise1();
@@ -65,7 +66,6 @@ void loop() {
         exercise3();
         break;
     }
-    digitalWrite(led1,LOW);
   }
   else{
     digitalWrite(led1,HIGH);
@@ -168,8 +168,10 @@ void nextExercise(){
     series = actualEx["series"];
     ejercicio = actualEx["exercise"];
     id = actualEx["routine"];
+    date = actualEx["date"];
     actualRep = 1;
     actualSerie = 1;
+    errores = 0;
     Serial.println(ejercicio);
     Serial.println(series);
     Serial.println(repeticiones);
@@ -250,7 +252,7 @@ void exercise2(){
 }
 
 void exercise3(){
-loopAcelerometro();
+  loopAcelerometro();
   boolean goingUp = true;
   float x = X_out, y = Y_out, z = Z_out;
   long antTiempoRep = millis(), actTiempoRep = millis();
@@ -309,13 +311,13 @@ void sendMetrics(){
 
 void rightRepetition(){
   rightBuzzer();  
- // sendRepeticion(true); 
+  sendRepeticion(true); 
   actualRep++;
 }
 
 void wrongRepetition(){
   wrongBuzzer();
-  //sendRepeticion(false);
+  sendRepeticion(false);
   errores++;
   if(errores > 2){
     antPausedSeries = millis();
@@ -337,8 +339,12 @@ void wrongRepetition(){
 
 void sendRepeticion(boolean estado){
   String cadena = "1#";
+  
   cadena += "{ \"id_ejercicio\" : "; 
   cadena+= ejercicio;
+  
+  cadena += ", \"id_rutina\": "; 
+  cadena += actualSerie;
   
   cadena += ", \"serie\": "; 
   cadena += actualSerie;
@@ -351,23 +357,25 @@ void sendRepeticion(boolean estado){
 
   cadena += ", \"peso\" : "; 
   cadena += getWeight();
+
+  cadena += ", \"fecha\" : "; 
+  cadena += fecha;
   
   if(estado) 
-    cadena += ", \"estado\" : true,";
+    cadena += ", \"completado\" : true,";
   else
-    cadena += ", \"estado\" : false, \"id\":";
+    cadena += ", \"completado\" : false, \"id\":";
+  Serial.println(cadena);
   Serial1.println(cadena);
 }
 
 void rightBuzzer(){
-  //tone(22,2000,500);
-  //noTone(22);
+  tone(22,2000,500);
   Serial.println("right buzzer...");
 }
 
 void wrongBuzzer(){
-  //tone(22,1000,500);
-  //noTone(22);
+  tone(22,1000,500);
   Serial.println("wrong buzzer...");
 }
 
