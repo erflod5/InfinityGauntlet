@@ -1,3 +1,5 @@
+#include <SPI.h>
+
 #include <ArduinoJson.h>
 StaticJsonDocument<1024> routine;
 JsonObject actualEx;
@@ -40,6 +42,8 @@ const char* fecha;
 */
 
 void setup(){
+  pinMode(buzzer,OUTPUT);
+  
   Serial.begin(115200);
   Serial1.begin(115200);
   setupWeight();
@@ -168,7 +172,7 @@ void nextExercise(){
     series = actualEx["series"];
     ejercicio = actualEx["exercise"];
     id = actualEx["routine"];
-    date = actualEx["date"];
+    fecha = actualEx["date"];
     actualRep = 1;
     actualSerie = 1;
     errores = 0;
@@ -344,7 +348,7 @@ void sendRepeticion(boolean estado){
   cadena+= ejercicio;
   
   cadena += ", \"id_rutina\": "; 
-  cadena += actualSerie;
+  cadena += id;
   
   cadena += ", \"serie\": "; 
   cadena += actualSerie;
@@ -358,25 +362,39 @@ void sendRepeticion(boolean estado){
   cadena += ", \"peso\" : "; 
   cadena += getWeight();
 
-  cadena += ", \"fecha\" : "; 
+  cadena += ", \"fecha\" : \""; 
   cadena += fecha;
-  
+  cadena += "\"";
   if(estado) 
-    cadena += ", \"completado\" : true,";
+    cadena += ", \"completado\" : true}";
   else
-    cadena += ", \"completado\" : false, \"id\":";
+    cadena += ", \"completado\" : false}";
   Serial.println(cadena);
   Serial1.println(cadena);
 }
 
 void rightBuzzer(){
-  tone(22,2000,500);
-  Serial.println("right buzzer...");
+  
+
+  for(int j = 0; j <= 250; j++){
+    digitalWrite(buzzer,HIGH);
+    delayMicroseconds(1500);
+
+    digitalWrite(buzzer,LOW);
+    delayMicroseconds(1500);
+  }
 }
 
 void wrongBuzzer(){
-  tone(22,1000,500);
-  Serial.println("wrong buzzer...");
+
+  for(int j = 0; j <= 250; j++){
+    digitalWrite(buzzer,HIGH);
+    delayMicroseconds(1000);
+
+    digitalWrite(buzzer,LOW);
+    delayMicroseconds(1000);
+  }
+
 }
 
 void clearSerial(){

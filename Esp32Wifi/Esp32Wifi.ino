@@ -24,6 +24,7 @@ void loop() {
     String estado = Serial.readStringUntil('#');
     if(estado.charAt(0) == '1'){
       sendData();
+      
       clearSerial();
     }
     else if(estado.charAt(0) == '2'){
@@ -40,14 +41,16 @@ void loop() {
 }
 
 void sendData(){
+  
   if (WiFi.status() == WL_CONNECTED) {
-    String data = Serial.readStringUntil('\n');
-    HTTPClient http;
-    
+     StaticJsonDocument<256> doc;
+    String JSONmessageBuffer = Serial.readStringUntil('\n');
+    JsonObject root = doc.to<JsonObject>();
+    //serializeJsonPretty(root, JSONmessageBuffer);
+    HTTPClient http;    
     http.begin("http://13.59.203.226:3000/rep");      //Specify request destination
-    http.addHeader("Content-Type", "application/json");  //Specify content-type header
-   
-    int httpCode = http.POST(data);   //Send the request
+    http.addHeader("Content-Type", "application/json");  //Specify content-type heade   
+    int httpCode = http.POST(JSONmessageBuffer);   //Send the request
     String payload = http.getString();
     http.end();  //Close connection*/
   } 
