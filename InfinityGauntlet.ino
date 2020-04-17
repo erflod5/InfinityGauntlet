@@ -1,5 +1,3 @@
-#include <SPI.h>
-
 #include <ArduinoJson.h>
 StaticJsonDocument<1024> routine;
 JsonObject actualEx;
