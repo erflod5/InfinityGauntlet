@@ -48,7 +48,7 @@ void setup(){
   antTimeMetric = actTimeMetric = millis();
   antPausedSeries = actPausedSeries = millis();
   pinMode(led1,OUTPUT);
-  pinMode(les2,OUTPUT);
+  pinMode(led2,OUTPUT);
 }
 
 void loop() {
@@ -190,7 +190,7 @@ void exercise1(){
       return;
     }
     loopAcelerometro();
-    if(X_out > 200 && Y_out > 0 && Z_out > -75){
+    if(X_out > -80 && Y_out > 180 && Z_out > -120){
       goingUp = false;
       Serial.println("### Subida Correcta");
     }
@@ -203,7 +203,7 @@ void exercise1(){
       return;
     }
     loopAcelerometro();
-    if(X_out < -90 && Y_out < -20 && Z_out < -200){
+    if(X_out < -200 && Y_out < 80 && Z_out < -60){
       Serial.println("### Bajada correcta");
       rightRepetition();
       next();
@@ -226,7 +226,7 @@ void exercise2(){
       return;
     }
     loopAcelerometro();
-    if(X_out > -50 && Y_out > 170 && Z_out > -130){
+    if(X_out > 200 && Y_out > -60 && Z_out > -80){
       goingUp = false;
       Serial.println("### Subida Correcta");
     }
@@ -239,7 +239,7 @@ void exercise2(){
       return;
     }
     loopAcelerometro();
-    if(X_out < -180 && Y_out < 100 && Z_out < -95){
+    if(X_out < -180 && Y_out < -30 && Z_out < -120){
       Serial.println("### Bajada correcta");
       rightRepetition();
       next();
@@ -262,7 +262,7 @@ loopAcelerometro();
       return;
     }
     loopAcelerometro();
-    if(X_out > -90 && Y_out > 130 && Z_out > 110){
+    if(X_out > -90 && Y_out > 120 && Z_out > 150){
       goingUp = false;
       Serial.println("### Subida Correcta");
     }
@@ -275,7 +275,7 @@ loopAcelerometro();
       return;
     }
     loopAcelerometro();
-    if(X_out < -200 && Y_out < -10 && Z_out < -10){
+    if(X_out < -200 && Y_out < -5 && Z_out < -30){
       Serial.println("### Bajada correcta");
       rightRepetition();
       next();
