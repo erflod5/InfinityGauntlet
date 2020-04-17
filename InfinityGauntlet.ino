@@ -22,7 +22,7 @@ long antPausedSeries;
 long actPausedSeries;
 boolean isPausedSeries = false;
 
-const long pausedSeries = 20000;
+const long pausedSeries = 30000;
 int id;
 
 const int buzzerPin=22;
@@ -374,20 +374,19 @@ void sendRepeticion(boolean estado){
 }
 
 void rightBuzzer(){
-  
-
-  for(int j = 0; j <= 250; j++){
+  int time = ejercicio == 1 ? 350 : ejercicio == 2 ? 450 : 750;
+  for(int j = 0; j <= time; j++){
     digitalWrite(buzzer,HIGH);
-    delayMicroseconds(1500);
+    delayMicroseconds(2000);
 
     digitalWrite(buzzer,LOW);
-    delayMicroseconds(1500);
+    delayMicroseconds(2000);
   }
 }
 
 void wrongBuzzer(){
-
-  for(int j = 0; j <= 250; j++){
+  int time = ejercicio == 1 ? 350 : ejercicio == 2 ? 450 : 750;
+  for(int j = 0; j <= time; j++){
     digitalWrite(buzzer,HIGH);
     delayMicroseconds(1000);
 
